@@ -123,7 +123,7 @@
                     const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
                     const isFaceSizeCorrect = checkFaceSize(landmarks);
 
-                    if ( isFaceSizeCorrect) {
+                    if (checkPerpendicularLines && isFaceSizeCorrect) {
                         message.style.display = 'block';
                         if (blinkCount >= 2) { // Blink 3 times (1s per blink)
                             message.style.display = 'none';
