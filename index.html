@@ -87,7 +87,7 @@
                     frame</div>
                 <img id="snapshot" src="" alt="Snapshot" class="img-fluid mb-3">
                 <div class="text-center">
-                    <button id="remove-snapshot" class="btn btn-primary">Remove Snapshot</button>
+                    <button id="remove-snapshot" class="btn btn-primary block" >Remove Snapshot</button>
                 </div>
             </div>
         </div>
@@ -206,8 +206,13 @@
 
                     // Automatically capture image if face is correctly sized
                     if (isFaceSizeCorrect) {
-                        captureImage();
-                        imageCaptured = true; // Prevent further captures
+                        if (blinkCount >= 2) { // Blink 3 times (1s per blink)
+                            message.style.display = 'none';
+                            captureImage();
+                            imageCaptured = true;
+                        } else {
+                            blinkCount++;
+                        }
                     } else {
                         message.style.display = 'block';
                     }
