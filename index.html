@@ -21,7 +21,7 @@
         .video-container {
             position: relative;
             width: 640px;
-            height: 480px;
+            height: 1000px;
             overflow: hidden;
             background: rgba(0, 0, 0, 0.1);
         }
@@ -56,7 +56,7 @@
             top: 50%;
             left: 50%;
             width: 320px;
-            height: 480px;
+            height: 650px;
             border: 2px solid red;
             border-radius: 50% / 60%;
             transform: translate(-50%, -50%);
@@ -75,12 +75,12 @@
     <h1>Face Liveness Check</h1>
 
     <div class="container mt-5">
-        <h1 class="text-center">Face Liveness Check</h1>
+       
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <div id="video-container" class="video-container mb-3">
-                    <video id="video" width="640" height="480" autoplay></video>
-                    <canvas id="canvas" width="640" height="480"></canvas>
+                    <video id="video" width="640" height="700" autoplay></video>
+                    <canvas id="canvas" width="640" height="700"></canvas>
                     <div id="faceOval"></div>
                 </div>
                 <div id="message" class="text-center mb-3">Please ensure your face is straight and filling 30% of the
