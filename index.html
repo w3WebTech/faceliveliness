@@ -295,18 +295,18 @@
             const angleDiff1 = Math.abs(horizontalLineAngle - verticalLineAngle);
             const angleDiff2 = Math.abs(mouthLineAngle - verticalLineAngle);
 
-            console.log('Coordinates:');
-            console.log('Left Eye:', leftEyeX, leftEyeY);
-            console.log('Right Eye:', rightEyeX, rightEyeY);
-            console.log('Nose Tip:', noseTipX, noseTipY);
-            console.log('Upper Lip:', upperLipX, upperLipY);
-            console.log('Lower Lip:', lowerLipX, lowerLipY);
-            console.log('Chin:', chinX, chinY);
+            alert('Coordinates:');
+            alert('Left Eye:', leftEyeX, leftEyeY);
+            alert('Right Eye:', rightEyeX, rightEyeY);
+            alert('Nose Tip:', noseTipX, noseTipY);
+            alert('Upper Lip:', upperLipX, upperLipY);
+            alert('Lower Lip:', lowerLipX, lowerLipY);
+            alert('Chin:', chinX, chinY);
 
-            console.log('Angles:');
-            console.log('Horizontal Line Angle:', horizontalLineAngle);
-            console.log('Vertical Line Angle:', verticalLineAngle);
-            console.log('Mouth Line Angle:', mouthLineAngle);
+            alert('Angles:');
+            alert('Horizontal Line Angle:', horizontalLineAngle);
+            alert('Vertical Line Angle:', verticalLineAngle);
+            alert('Mouth Line Angle:', mouthLineAngle);
 
             return (Math.abs(angleDiff1 - 90) <= 3 && Math.abs(angleDiff2 - 90) <= 3 && withinMargin);
         }
@@ -370,9 +370,9 @@
         }
 
         function logResults(landmarks) {
-            console.log('Landmarks:');
+            alert('Landmarks:');
             for (let i = 0; i < landmarks.length; i++) {
-                console.log(`Point ${i}:`, landmarks[i].x * canvasElement.width, landmarks[i].y * canvasElement.height);
+                alert(`Point ${i}:`, landmarks[i].x * canvasElement.width, landmarks[i].y * canvasElement.height);
             }
         }
 
