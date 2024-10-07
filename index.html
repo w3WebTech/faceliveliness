@@ -69,18 +69,19 @@
         <h1 class="text-center">Face Liveness Check</h1>
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div id="video-container" class="video-container">
+                <div id="video-container" class="video-container mb-3">
                     <video id="video" width="640" height="480" autoplay></video>
                     <canvas id="canvas" width="640" height="480"></canvas>
                     <div id="faceOval"></div>
                 </div>
-                <div id="message" class="text-center">Please ensure your face is straight and filling 30% of the frame</div>
-                <img id="snapshot" src="" alt="Snapshot" class="img-fluid">
+                <div id="message" class="text-center mb-3">Please ensure your face is straight and filling 30% of the frame</div>
+                <img id="snapshot" src="" alt="Snapshot" class="img-fluid mb-3">
+                <div class="text-center">
+                    <button id="remove-snapshot" class="btn btn-primary">Remove Snapshot</button>
+                </div>
             </div>
-            <button id="remove-snapshot">Remove Snapshot</button>
         </div>
     </div>
-
     <script>
         const videoElement = document.getElementById('video');
         const canvasElement = document.getElementById('canvas');
@@ -163,7 +164,7 @@
         //     canvasCtx.restore();
         // }
         document.getElementById('remove-snapshot').addEventListener('click', function() {
-    snapshot.src = '';
+    snapshot.src = null;
     snapshot.style.display = 'none';
     document.getElementById('video-container').style.display = 'block';
 });
