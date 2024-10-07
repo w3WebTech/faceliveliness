@@ -13,12 +13,10 @@
             flex-direction: column;
             height: 100vh;
             background-color: #f0f0f0;
-            position: relative;
         }
 
         .container {
             text-align: center;
-            position: relative;
         }
 
         video {
@@ -41,33 +39,29 @@
             cursor: pointer;
         }
 
-        /* Overlay style */
-        .overlay {
+        /* Add styles for the oval overlay */
+        .face-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 4px dashed #00FF00; /* Green color */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0; /* Initially hidden */
-            transition: opacity 0.5s ease-in-out;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
         }
 
-        .overlay.visible {
-            opacity: 1; /* Show overlay */
+        .face-overlay.oval {
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            padding: 10px;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@google/mlkit-js@0.1.3/dist/face-detection.min.js"></script>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('capture');
         const capturedImage = document.getElementById('capturedImage');
-        const overlay = document.querySelector('.overlay');
+        const faceOverlay = document.getElementById('face-overlay');
 
         // Access the user's webcam
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -78,27 +72,46 @@
                 console.error("Error accessing the webcam: " + err);
             });
 
+        // Create a FaceDetector instance
+        const faceDetector = new FaceDetector({
+            onFacesDetected: (faces) => {
+                if (faces.length > 0) {
+                    const face = faces[0];
+                    const faceRect = face.boundingBox;
+                    const faceArea = faceRect.width * faceRect.height;
+                    const videoArea = video.videoWidth * video.videoHeight;
+                    const facePercentage = (faceArea / videoArea) * 100;
+
+                    if (facePercentage > 30) {
+                        // Show the oval overlay
+                        faceOverlay.style.display = 'block';
+                        faceOverlay.style.top = `${faceRect.top}px`;
+                        faceOverlay.style.left = `${faceRect.left}px`;
+                        faceOverlay.style.width = `${faceRect.width}px`;
+                        faceOverlay.style.height = `${faceRect.height}px`;
+                    } else {
+                        // Hide the oval overlay
+                        faceOverlay.style.display = 'none';
+                    }
+                }
+            }
+        });
+
         // Capture the image from the video stream
         captureButton.addEventListener('click', () => {
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
             // Convert canvas to image and display
             const imageDataUrl = canvas.toDataURL('image/png');
             capturedImage.src = imageDataUrl;
 
-            // Show overlay for liveness check
-            overlay.classList.add('visible');
-
-            // Perform a basic liveness check
+            // Perform a basic liveness check (optional)
+            // This could be a placeholder for actual liveness detection logic
             alert("Please blink or smile for liveness check!");
-
-            // Hide the overlay after 3 seconds (or adjust time as necessary)
-            setTimeout(() => {
-                overlay.classList.remove('visible');
-            }, 3000);
+            // Additional logic for a real liveness check would go here
         });
     </script>
 </head>
@@ -109,9 +122,7 @@
         <button id="capture">Capture Image</button>
         <canvas id="canvas" style="display: none;"></canvas>
         <img id="capturedImage" alt="Captured Image">
-        
-        <!-- Overlay for liveness check -->
-        <div class="overlay">👁️</div>
+        <div id="face-overlay" class="face-overlay"></div>
     </div>
 </body>
 </html>
