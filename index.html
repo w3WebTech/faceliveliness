@@ -206,10 +206,11 @@
                     }
 
                     // Check if face size is correct
+                    const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
                     const isFaceSizeCorrect = checkFaceSize(landmarks);
 
                     // Automatically capture image if face is correctly sized
-                    if (isFaceSizeCorrect) {
+                    if (checkPerpendicularLines && isFaceSizeCorrect ) {
                         if (blinkCount >= 2) { // Blink 3 times (1s per blink)
                             message.style.display = 'none';
                             captureImage();
