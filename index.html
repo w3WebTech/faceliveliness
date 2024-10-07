@@ -13,10 +13,12 @@
             flex-direction: column;
             height: 100vh;
             background-color: #f0f0f0;
+            position: relative;
         }
 
         .container {
             text-align: center;
+            position: relative;
         }
 
         video {
@@ -38,39 +40,66 @@
             font-size: 16px;
             cursor: pointer;
         }
+
+        /* Overlay style */
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px dashed #00FF00; /* Green color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0; /* Initially hidden */
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .overlay.visible {
+            opacity: 1; /* Show overlay */
+        }
     </style>
     <script>
         const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const captureButton = document.getElementById('capture');
-const capturedImage = document.getElementById('capturedImage');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+        const capturedImage = document.getElementById('capturedImage');
+        const overlay = document.querySelector('.overlay');
 
-// Access the user's webcam
-navigator.mediaDevices.getUserMedia({ video: true })
-    .then(stream => {
-        video.srcObject = stream;
-    })
-    .catch(err => {
-        console.error("Error accessing the webcam: " + err);
-    });
+        // Access the user's webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error("Error accessing the webcam: " + err);
+            });
 
-// Capture the image from the video stream
-captureButton.addEventListener('click', () => {
-    const context = canvas.getContext('2d');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // Convert canvas to image and display
-    const imageDataUrl = canvas.toDataURL('image/png');
-    capturedImage.src = imageDataUrl;
+        // Capture the image from the video stream
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas to image and display
+            const imageDataUrl = canvas.toDataURL('image/png');
+            capturedImage.src = imageDataUrl;
 
-    // Perform a basic liveness check (optional)
-    // This could be a placeholder for actual liveness detection logic
-    alert("Please blink or smile for liveness check!");
-    // Additional logic for a real liveness check would go here
-});
+            // Show overlay for liveness check
+            overlay.classList.add('visible');
 
+            // Perform a basic liveness check
+            alert("Please blink or smile for liveness check!");
+
+            // Hide the overlay after 3 seconds (or adjust time as necessary)
+            setTimeout(() => {
+                overlay.classList.remove('visible');
+            }, 3000);
+        });
     </script>
 </head>
 <body>
@@ -80,7 +109,9 @@ captureButton.addEventListener('click', () => {
         <button id="capture">Capture Image</button>
         <canvas id="canvas" style="display: none;"></canvas>
         <img id="capturedImage" alt="Captured Image">
+        
+        <!-- Overlay for liveness check -->
+        <div class="overlay">👁️</div>
     </div>
-    
 </body>
 </html>
