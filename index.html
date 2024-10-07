@@ -1,29 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
-  <script defer src="face-api.min.js"></script>
-  <script defer src="script.js"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Liveness Check</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
 
-    canvas {
-      position: absolute;
-    }
-  </style>
+        .container {
+            text-align: center;
+        }
+
+        video {
+            border: 2px solid #333;
+            width: 300px;
+            height: 200px;
+        }
+
+        img {
+            margin-top: 20px;
+            border: 2px solid #333;
+            width: 300px;
+            height: auto;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <video id="video" width="720" height="560" autoplay muted></video>
+    <div class="container">
+        <h1>Face Liveness Check</h1>
+        <video id="video" autoplay></video>
+        <button id="capture">Capture Image</button>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <img id="capturedImage" alt="Captured Image">
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
