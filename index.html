@@ -61,10 +61,16 @@
 <body>
     <h1>Face Liveness Check</h1>
     <div class="video-container">
-        <video id="video" width="640" height="480" autoplay></video>
+        <div>
+            <video id="video" width="640" height="480" autoplay></video>
         <canvas id="canvas" width="640" height="480"></canvas>
-        <img id="snapshot" src="" alt="Snapshot">
         <div id="faceOval"></div>
+        </div>
+        <div>
+            <img id="snapshot" src="" alt="Snapshot">
+        </div>
+       
+       
     </div>
     <div id="message">Please ensure your face is straight and filling 30% of the frame</div>
     <!-- <img id="snapshot" src="" alt="Snapshot"> -->
