@@ -124,7 +124,7 @@
 
         const camera = new Camera(videoElement, {
             onFrame: async () => {
-                await faceMesh.send({ image: videoElement });
+                await faceMesh.send({image: videoElement});
             },
             width: 640,
             height: 480
@@ -132,89 +132,134 @@
         camera.start();
 
         function onResults(results) {
-    if (imageCaptured) return;
+            if (imageCaptured) return;
 
-    canvasCtx.save();
-    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-    if (results.multiFaceLandmarks) {
-        for (const landmarks of results.multiFaceLandmarks) {
-            // Draw points
-            for (let i = 0; i < landmarks.length; i++) {
-                const x = landmarks[i].x * canvasElement.width;
-                const y = landmarks[i].y * canvasElement.height;
-                canvasCtx.beginPath();
-                canvasCtx.fillStyle = '#FF0000';
-                canvasCtx.arc(x, y, 2, 0, 2 * Math.PI);
-                canvasCtx.fill();
-            }
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            if (results.multiFaceLandmarks) {
+                for (const landmarks of results.multiFaceLandmarks) {
+                    // Draw points
+                    for (let i = 0; i < landmarks.length; i++) {
+                        const x = landmarks[i].x * canvasElement.width;
+                        const y = landmarks[i].y * canvasElement.height;
+                        canvasCtx.beginPath();
+                        canvasCtx.fillStyle = '#FF0000';
+                        canvasCtx.arc(x, y, 2, 0, 2 * Math.PI);
+                        canvasCtx.fill();
+                    }
 
-            // Check perpendicular intersecting lines
-            const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
-            const isFaceSizeCorrect = checkFaceSize(landmarks);
+                    // Check perpendicular intersecting lines
+                    const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
+                    const isFaceSizeCorrect = checkFaceSize(landmarks);
 
-            if (areLinesPerpendicular && isFaceSizeCorrect) {
-                message.style.display = 'block';
-                if (blinkCount >= 2) { // Blink 3 times (1s per blink)
-                    message.style.display = 'none';
-                    captureImage();
-                    imageCaptured = true;
-                } else {
-                    blinkCount++;
+                    if ( isFaceSizeCorrect) {
+                        message.style.display = 'block';
+                        if (blinkCount >= 2) { // Blink 3 times (1s per blink)
+                            message.style.display = 'none';
+                            captureImage();
+                            imageCaptured = true;
+                        } else {
+                            blinkCount++;
+                        }
+                    } else {
+                        message.style.display = 'none';
+                        blinkCount = 0;
+                    }
+
+                    // Draw inverted triangle between center lines of both eyes and jaw line
+                    drawInvertedTriangle(canvasCtx, landmarks, 33, 263, 152);
+
+                    // Draw face oval connector
+                    drawFaceOvalConnector(canvasCtx, landmarks);
+
+                    // Log all coordinates and angle results to console
+                    logResults(landmarks);
                 }
-            } else {
-                message.style.display = 'none';
-                blinkCount = 0;
             }
-
-            // Draw inverted triangle between center lines of both eyes and jaw line
-            drawInvertedTriangle(canvasCtx, landmarks, 33, 263, 152);
-
-            // Draw face oval connector
-            drawFaceOvalConnector(canvasCtx, landmarks);
-
-            // Log all coordinates and angle results to console
-            logResults(landmarks);
+            canvasCtx.restore();
         }
-    }
-    canvasCtx.restore();
-}
-        document.getElementById('remove-snapshot').addEventListener('click', function () {
-            snapshot.src = null;
-            snapshot.style.display = 'none';
-            document.getElementById('video-container').style.display = 'block';
-            document.getElementById('remove-snapshot').style.display = 'none';
-            imageCaptured = false; // Reset imageCaptured flag
-            camera.stop(); // Stop the camera
-            camera.start(); // Restart the camera
-        });
-     
 
         function checkPerpendicularLines(ctx, landmarks) {
-          // Calculate angles between lines
-const horizontalLineAngle = Math.atan2(rightEyeY - leftEyeY, rightEyeX - leftEyeX);
-const verticalLineAngle = Math.atan2(chinY - eyesCenterY, noseTipX - noseTipX);
-const mouthLineAngle = Math.atan2(lowerLipY - upperLipY, lowerLipX - upperLipX);
+            // Define landmarks for the lines
+            const leftEye = landmarks[33];  // Left eye outer corner
+            const rightEye = landmarks[263]; // Right eye outer corner
+            const noseTip = landmarks[1];  // Nose tip
+            const upperLip = landmarks[13];  // Upper lip
+            const lowerLip = landmarks[14];  // Lower lip
+            const chin = landmarks[152]; // Chin point
 
-const angleDiff1 = Math.abs(horizontalLineAngle - verticalLineAngle);
-const angleDiff2 = Math.abs(mouthLineAngle - verticalLineAngle);
+            // Calculate central points for the eyes and lips
+            const leftEyeX = leftEye.x * canvasElement.width;
+            const leftEyeY = leftEye.y * canvasElement.height;
+            const rightEyeX = rightEye.x * canvasElement.width;
+            const rightEyeY = rightEye.y * canvasElement.height;
+            const noseTipX = noseTip.x * canvasElement.width;
+            const noseTipY = noseTip.y * canvasElement.height;
+            const upperLipX = upperLip.x * canvasElement.width;
+            const upperLipY = upperLip.y * canvasElement.height;
+            const lowerLipX = lowerLip.x * canvasElement.width;
+            const lowerLipY = lowerLip.y * canvasElement.height;
+            const chinX = chin.x * canvasElement.width;
+            const chinY = chin.y * canvasElement.height;
 
-console.log('Coordinates:');
-console.log('Left Eye:', leftEyeX, leftEyeY);
-console.log('Right Eye:', rightEyeX, rightEyeY);
-console.log('Nose Tip:', noseTipX, noseTipY);
-console.log('Upper Lip:', upperLipX, upperLipY);
-console.log('Lower Lip:', lowerLipX, lowerLipY);
-console.log('Chin:', chinX, chinY);
+            // Ensure the lines intersect at 90 degrees and within a margin
+            const eyesCenterX = (leftEyeX + rightEyeX) / 2;
+            const eyesCenterY = (leftEyeY + rightEyeY) / 2;
+            const faceWidth = rightEyeX - leftEyeX;
+            const margin = faceWidth * 0.1;  // 10% margin
 
-console.log('Angles:');
-console.log('Horizontal Line Angle:', horizontalLineAngle);
-console.log('Vertical Line Angle:', verticalLineAngle);
-console.log('Mouth Line Angle:', mouthLineAngle);
+            const withinMargin = Math.abs(noseTipX - eyesCenterX) <= margin;
 
-console.log(Math.abs(angleDiff1 - Math.PI/2) <= 0.05 && Math.abs(angleDiff2 - Math.PI/2) <= 0.05 && withinMargin,"final")
+            ctx.strokeStyle = '#00FF00';
+            ctx.lineWidth = 2;
 
-return (Math.abs(angleDiff1 - Math.PI/2) <= 0.05 && Math.abs(angleDiff2 - Math.PI/2) <= 0.05 && withinMargin);
+            // Draw horizontal line through eyes
+            ctx.beginPath();
+            ctx.moveTo(leftEyeX, eyesCenterY);
+            ctx.lineTo(rightEyeX, eyesCenterY);
+            ctx.stroke();
+
+            // Draw vertical line through nose and chin
+            ctx.beginPath();
+            ctx.moveTo(noseTipX, eyesCenterY);
+            ctx.lineTo(noseTipX, chinY);
+            ctx.stroke();
+
+            // Draw horizontal line through mouth
+            ctx.beginPath();
+            ctx.moveTo(upperLipX - 20, upperLipY);
+            ctx.lineTo(lowerLipX + 20, lowerLipY);
+            ctx.stroke();
+
+            // Draw vertical line through nose tip and mouth
+            ctx.beginPath();
+            ctx.moveTo(noseTipX, upperLipY - 20);
+            ctx.lineTo(noseTipX, lowerLipY + 20);
+            ctx.stroke();
+
+            // Calculate angles between lines
+            const horizontalLineAngle = Math.atan2(rightEyeY - leftEyeY, rightEyeX - leftEyeX) * (180 / Math.PI);
+            const verticalLineAngle = Math.atan2(chinY - eyesCenterY, noseTipX - noseTipX) * (180 / Math.PI);
+            const mouthLineAngle = Math.atan2(lowerLipY - upperLipY, lowerLipX - upperLipX) * (180 / Math.PI);
+
+            const angleDiff1 = Math.abs(horizontalLineAngle - verticalLineAngle);
+            const angleDiff2 = Math.abs(mouthLineAngle - verticalLineAngle);
+
+            console.log('Coordinates:');
+            console.log('Left Eye:', leftEyeX, leftEyeY);
+            console.log('Right Eye:', rightEyeX, rightEyeY);
+            console.log('Nose Tip:', noseTipX, noseTipY);
+            console.log('Upper Lip:', upperLipX, upperLipY);
+            console.log('Lower Lip:', lowerLipX, lowerLipY);
+            console.log('Chin:', chinX, chinY);
+
+            console.log('Angles:');
+            console.log('Horizontal Line Angle:', horizontalLineAngle);
+            console.log('Vertical Line Angle:', verticalLineAngle);
+            console.log('Mouth Line Angle:', mouthLineAngle);
+
+            return (Math.abs(angleDiff1 - 90) <= 3 && Math.abs(angleDiff2 - 90) <= 3 && withinMargin);
         }
 
         function checkFaceSize(landmarks) {
@@ -283,17 +328,15 @@ return (Math.abs(angleDiff1 - Math.PI/2) <= 0.05 && Math.abs(angleDiff2 - Math.P
         }
 
         function captureImage() {
-    const snapshotCanvas = document.createElement('canvas');
-    snapshotCanvas.width = canvasElement.width;
-    snapshotCanvas.height = canvasElement.height;
-    const snapshotCtx = snapshotCanvas.getContext('2d');
-    snapshotCtx.drawImage(videoElement, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
-    const dataUrl = snapshotCanvas.toDataURL('image/png');
-    snapshot.src = dataUrl;
-    snapshot.style.display = 'block';
-    document.getElementById('video-container').style.display = 'none';
-    document.getElementById('remove-snapshot').style.display = 'block';
-}
+            const snapshotCanvas = document.createElement('canvas');
+            snapshotCanvas.width = canvasElement.width;
+            snapshotCanvas.height = canvasElement.height;
+            const snapshotCtx = snapshotCanvas.getContext('2d');
+            snapshotCtx.drawImage(videoElement, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+            const dataUrl = snapshotCanvas.toDataURL('image/png');
+            snapshot.src = dataUrl;
+            snapshot.style.display = 'block';
+        }
     </script>
 </body>
 
