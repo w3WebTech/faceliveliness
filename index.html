@@ -132,53 +132,53 @@
         camera.start();
 
         function onResults(results) {
-            if (imageCaptured) return;
+    if (imageCaptured) return;
 
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-            if (results.multiFaceLandmarks) {
-                for (const landmarks of results.multiFaceLandmarks) {
-                    // Draw points
-                    for (let i = 0; i < landmarks.length; i++) {
-                        const x = landmarks[i].x * canvasElement.width;
-                        const y = landmarks[i].y * canvasElement.height;
-                        canvasCtx.beginPath();
-                        canvasCtx.fillStyle = '#FF0000';
-                        canvasCtx.arc(x, y, 2, 0, 2 * Math.PI);
-                        canvasCtx.fill();
-                    }
-
-                    // Check perpendicular intersecting lines
-                    const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
-                    const isFaceSizeCorrect = checkFaceSize(landmarks);
-
-                    if (areLinesPerpendicular && isFaceSizeCorrect) {
-                        message.style.display = 'block';
-                        if (blinkCount >= 2) { // Blink 3 times (1s per blink)
-                            message.style.display = 'none';
-                            captureImage();
-                            imageCaptured = true;
-                        } else {
-                            blinkCount++;
-                        }
-                    } else {
-                        message.style.display = 'none';
-                        blinkCount = 0;
-                    }
-
-                    // Draw inverted triangle between center lines of both eyes and jaw line
-                    drawInvertedTriangle(canvasCtx, landmarks, 33, 263, 152);
-
-                    // Draw face oval connector
-                    drawFaceOvalConnector(canvasCtx, landmarks);
-
-                    // Log all coordinates and angle results to console
-                    logResults(landmarks);
-                }
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+    if (results.multiFaceLandmarks) {
+        for (const landmarks of results.multiFaceLandmarks) {
+            // Draw points
+            for (let i = 0; i < landmarks.length; i++) {
+                const x = landmarks[i].x * canvasElement.width;
+                const y = landmarks[i].y * canvasElement.height;
+                canvasCtx.beginPath();
+                canvasCtx.fillStyle = '#FF0000';
+                canvasCtx.arc(x, y, 2, 0, 2 * Math.PI);
+                canvasCtx.fill();
             }
-            canvasCtx.restore();
+
+            // Check perpendicular intersecting lines
+            const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
+            const isFaceSizeCorrect = checkFaceSize(landmarks);
+
+            if (areLinesPerpendicular && isFaceSizeCorrect) {
+                message.style.display = 'block';
+                if (blinkCount >= 2) { // Blink 3 times (1s per blink)
+                    message.style.display = 'none';
+                    captureImage();
+                    imageCaptured = true;
+                } else {
+                    blinkCount++;
+                }
+            } else {
+                message.style.display = 'none';
+                blinkCount = 0;
+            }
+
+            // Draw inverted triangle between center lines of both eyes and jaw line
+            drawInvertedTriangle(canvasCtx, landmarks, 33, 263, 152);
+
+            // Draw face oval connector
+            drawFaceOvalConnector(canvasCtx, landmarks);
+
+            // Log all coordinates and angle results to console
+            logResults(landmarks);
         }
+    }
+    canvasCtx.restore();
+}
         document.getElementById('remove-snapshot').addEventListener('click', function () {
             snapshot.src = null;
             snapshot.style.display = 'none';
@@ -283,17 +283,17 @@ return (Math.abs(angleDiff1 - Math.PI/2) <= 0.05 && Math.abs(angleDiff2 - Math.P
         }
 
         function captureImage() {
-            const snapshotCanvas = document.createElement('canvas');
-            snapshotCanvas.width = canvasElement.width;
-            snapshotCanvas.height = canvasElement.height;
-            const snapshotCtx = snapshotCanvas.getContext('2d');
-            snapshotCtx.drawImage(videoElement, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
-            const dataUrl = snapshotCanvas.toDataURL('image/png');
-            snapshot.src = dataUrl;
-            snapshot.style.display = 'block';
-            document.getElementById('video-container').style.display = 'none';
-            document.getElementById('remove-snapshot').style.display = 'block';
-        }
+    const snapshotCanvas = document.createElement('canvas');
+    snapshotCanvas.width = canvasElement.width;
+    snapshotCanvas.height = canvasElement.height;
+    const snapshotCtx = snapshotCanvas.getContext('2d');
+    snapshotCtx.drawImage(videoElement, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+    const dataUrl = snapshotCanvas.toDataURL('image/png');
+    snapshot.src = dataUrl;
+    snapshot.style.display = 'block';
+    document.getElementById('video-container').style.display = 'none';
+    document.getElementById('remove-snapshot').style.display = 'block';
+}
     </script>
 </body>
 
