@@ -21,6 +21,13 @@
     canvas {
       display: none;
     }
+    #captured-image {
+      display: none;
+      width: 320px;
+      height: 240px;
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -28,12 +35,13 @@
   <video id="video" autoplay></video>
   <button id="capture">Capture Image</button>
   <canvas id="canvas"></canvas>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/opencv4nodejs/6.0.0/opencv.js"></script>
+  <img id="captured-image" src="" alt="Captured Image">  <script src="https://cdnjs.cloudflare.com/ajax/libs/opencv4nodejs/6.0.0/opencv.js"></script>
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
     const captureButton = document.getElementById('capture');
+    const capturedImage = document.getElementById('captured-image');
 
     navigator.mediaDevices.getUserMedia({ video: true })
       .then(stream => {
@@ -59,8 +67,9 @@
             if (coveredPercentage < 30) {
               alert("Face detected and not covered more than 30%");
               // Capture the image
-              const imageDataURL = canvas.toDataURL("image/png"); // Capture image data URL
-              // You can now use imageDataURL to save the image or perform further actions
+              const imageDataURL = canvas.toDataURL("image/png");
+              capturedImage.src = imageDataURL; // Update image source
+              capturedImage.style.display = 'block'; // Display the captured image
             } else {
               alert("Face is covered more than 30%");
             }
