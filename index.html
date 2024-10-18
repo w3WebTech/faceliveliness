@@ -1,91 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Face Liveness Check</title>
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background-color: #f0f0f0;
-    }
-    video {
-      border: 1px solid #ccc;
-      width: 320px;
-      height: 240px;
-    }
-    canvas {
-      display: none;
-    }
-    #captured-image {
-      display: none;
-      width: 320px;
-      height: 240px;
-      border: 1px solid #ccc;
-      margin-top: 20px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Liveness Check</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        video {
+            border: 1px solid #ccc;
+            width: 320px;
+            height: 240px;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        #captured-image {
+            display: none;
+            width: 320px;
+            height: 240px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>Face Liveness Check</h1>
-  <video id="video" autoplay></video>
-  <button id="capture">Capture Image</button>
-  <canvas id="canvas"></canvas>
-  <img id="captured-image" src="" alt="Captured Image">  <script src="https://cdnjs.cloudflare.com/ajax/libs/opencv4nodejs/6.0.0/opencv.js"></script>
-  <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const context = canvas.getContext('2d');
-    const captureButton = document.getElementById('capture');
-    const capturedImage = document.getElementById('captured-image');
+    <h1>Face Liveness Check</h1>
+    <video id="video" autoplay></video>
+    <button id="capture">Capture Image</button>
+    <canvas id="canvas"></canvas>
+    <img id="captured-image" src="" alt="Captured Image">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/opencv4nodejs/6.0.0/opencv.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const captureButton = document.getElementById('capture');
+        const capturedImage = document.getElementById('captured-image');
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
+        // Set canvas dimensions
+        canvas.width = 320;
+        canvas.height = 240;
 
-        captureButton.addEventListener('click', () => {
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          const src = cv.matFromImageData(imageData);
-          const gray = new cv.Mat();
-          cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-          const faces = new cv.RectVector();
-          const classifier = new cv.CascadeClassifier();
-          classifier.load('haarcascade_frontalface_default.xml');
-          classifier.detectMultiScale(gray, faces, 1.1, 3, 0);
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
 
-          if (faces.size() > 0) {
-            const face = faces.get(0);
-            const faceArea = face.width * face.height;
-            const totalArea = canvas.width * canvas.height;
-            const coveredPercentage = (faceArea / totalArea) * 100;
+                captureButton.addEventListener('click', () => {
+                    console.log("Capture button clicked"); // Debugging line
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const src = cv.matFromImageData(imageData);
+                    const gray = new cv.Mat();
+                    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+                    const faces = new cv.RectVector();
+                    const classifier = new cv.CascadeClassifier();
 
-            if (coveredPercentage < 30) {
-              alert("Face detected and not covered more than 30%");
-              // Capture the image
-              const imageDataURL = canvas.toDataURL("image/png");
-              capturedImage.src = imageDataURL; // Update image source
-              capturedImage.style.display = 'block'; // Display the captured image
-            } else {
-              alert("Face is covered more than 30%");
-            }
-          } else {
-            alert("No face detected");
-          }
+                    // Ensure the Haar cascade file is correctly loaded
+                    classifier.load('haarcascade_frontalface_default.xml');
 
-          src.delete();
-          gray.delete();
-          faces.delete();
-          classifier.delete();
-        });
-      })
-      .catch(err => {
-        console.error("Error accessing webcam: ", err);
-      });
-  </script>
+                    classifier.detectMultiScale(gray, faces, 1.1, 3, 0);
+
+                    if (faces.size() > 0) {
+                        const face = faces.get(0);
+                        const faceArea = face.width * face.height;
+                        const totalArea = canvas.width * canvas.height;
+                        const coveredPercentage = (faceArea / totalArea) * 100;
+
+                        if (coveredPercentage < 30) {
+                            alert("Face detected and not covered more than 30%");
+                            const imageDataURL = canvas.toDataURL("image/png");
+                            capturedImage.src = imageDataURL; // Update image source
+                            capturedImage.style.display = 'block'; // Display the captured image
+                        } else {
+                            alert("Face is covered more than 30%");
+                        }
+                    } else {
+                        alert("No face detected");
+                    }
+
+                    src.delete();
+                    gray.delete();
+                    faces.delete();
+                    classifier.delete();
+                });
+            })
+            .catch(err => {
+                console.error("Error accessing webcam: ", err);
+            });
+    </script>
 </body>
+
 </html>
