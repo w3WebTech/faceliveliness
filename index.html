@@ -57,15 +57,15 @@
             const coveredPercentage = (faceArea / totalArea) * 100;
 
             if (coveredPercentage < 30) {
-              console.log("Face detected and not covered more than 30%");
+              alert("Face detected and not covered more than 30%");
               // Capture the image
               const imageDataURL = canvas.toDataURL("image/png"); // Capture image data URL
               // You can now use imageDataURL to save the image or perform further actions
             } else {
-              console.log("Face is covered more than 30%");
+              alert("Face is covered more than 30%");
             }
           } else {
-            console.log("No face detected");
+            alert("No face detected");
           }
 
           src.delete();
