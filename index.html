@@ -18,8 +18,8 @@
         }
         .video-container {
             position: relative;
-            width: 640px;
-            height: 480px;
+            width: 1280px; /* Set to desired width */
+            height: 720px; /* Set to desired height */
             overflow: hidden;
             background: rgba(0, 0, 0, 0.1);
         }
@@ -27,6 +27,8 @@
             position: absolute;
             top: 0;
             left: 0;
+            width: 100%; /* Ensure the video and canvas fill the container */
+            height: 100%;
         }
         #message {
             margin-top: 20px;
