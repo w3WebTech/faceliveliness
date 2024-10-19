@@ -1,7 +1,8 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Liveness Check with MediaPipe</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
@@ -15,11 +16,12 @@
             height: 100vh;
             background-color: #f0f0f0;
             margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
         }
         .video-container {
             position: relative;
-            width: 1280px; /* Set to desired width */
-            height: 720px; /* Set to desired height */
+            width: 100vw; /* Full width */
+            height: 100vh; /* Full height */
             overflow: hidden;
             background: rgba(0, 0, 0, 0.1);
         }
@@ -29,6 +31,7 @@
             left: 0;
             width: 100%; /* Ensure the video and canvas fill the container */
             height: 100%;
+            object-fit: cover; /* Cover the entire container */
         }
         #message {
             margin-top: 20px;
@@ -46,8 +49,8 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 320px;
-            height: 480px;
+            width: 70vw; /* Responsive width */
+            height: 90vh; /* Responsive height */
             border: 2px solid red;
             border-radius: 50% / 60%;
             transform: translate(-50%, -50%);
@@ -63,8 +66,8 @@
 <body>
     <h1>Face Liveness Check</h1>
     <div class="video-container">
-        <video id="video" width="640" height="480" autoplay></video>
-        <canvas id="canvas" width="640" height="480"></canvas>
+        <video id="video" autoplay></video>
+        <canvas id="canvas"></canvas>
         <div id="faceOval"></div>
     </div>
     <div id="message">Please ensure your face is straight and filling 30% of the frame</div>
@@ -125,7 +128,7 @@
                     const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
                     const isFaceSizeCorrect = checkFaceSize(landmarks);
 
-                    if ( isFaceSizeCorrect) {
+                    if (isFaceSizeCorrect) {
                         message.style.display = 'block';
                         if (blinkCount >= 2) { // Blink 3 times (1s per blink)
                             message.style.display = 'none';
@@ -153,46 +156,46 @@
         }
 
         function checkPerpendicularLines(ctx, landmarks) {
-    // Define landmarks for the lines
-    const leftEye = landmarks[33];  // Left eye outer corner
-    const rightEye = landmarks[263]; // Right eye outer corner
-    const noseTip = landmarks[1];     // Nose tip
-    const chin = landmarks[152];      // Chin point
+            // Define landmarks for the lines
+            const leftEye = landmarks[33];  // Left eye outer corner
+            const rightEye = landmarks[263]; // Right eye outer corner
+            const noseTip = landmarks[1];     // Nose tip
+            const chin = landmarks[152];      // Chin point
 
-    // Calculate coordinates
-    const leftEyeX = leftEye.x * canvasElement.width;
-    const leftEyeY = leftEye.y * canvasElement.height;
-    const rightEyeX = rightEye.x * canvasElement.width;
-    const rightEyeY = rightEye.y * canvasElement.height;
-    const noseTipX = noseTip.x * canvasElement.width;
-    const noseTipY = noseTip.y * canvasElement.height;
-    const chinX = chin.x * canvasElement.width;
-    const chinY = chin.y * canvasElement.height;
+            // Calculate coordinates
+            const leftEyeX = leftEye.x * canvasElement.width;
+            const leftEyeY = leftEye.y * canvasElement.height;
+            const rightEyeX = rightEye.x * canvasElement.width;
+            const rightEyeY = rightEye.y * canvasElement.height;
+            const noseTipX = noseTip.x * canvasElement.width;
+            const noseTipY = noseTip.y * canvasElement.height;
+            const chinX = chin.x * canvasElement.width;
+            const chinY = chin.y * canvasElement.height;
 
-    // Calculate slopes
-    const slopeEyes = (rightEyeY - leftEyeY) / (rightEyeX - leftEyeX);
-    const slopeNoseChin = (chinY - noseTipY) / (chinX - noseTipX);
+            // Calculate slopes
+            const slopeEyes = (rightEyeY - leftEyeY) / (rightEyeX - leftEyeX);
+            const slopeNoseChin = (chinY - noseTipY) / (chinX - noseTipX);
 
-    // Check if the product of slopes is close to -1 (perpendicular)
-    const isPerpendicular = Math.abs(slopeEyes * slopeNoseChin + 1) < 0.1; // Tolerance of 0.1
+            // Check if the product of slopes is close to -1 (perpendicular)
+            const isPerpendicular = Math.abs(slopeEyes * slopeNoseChin + 1) < 0.1; // Tolerance of 0.1
 
-    ctx.strokeStyle = '#00FF00';
-    ctx.lineWidth = 2;
+            ctx.strokeStyle = '#00FF00';
+            ctx.lineWidth = 2;
 
-    // Draw horizontal line through eyes
-    ctx.beginPath();
-    ctx.moveTo(leftEyeX, (leftEyeY + rightEyeY) / 2);
-    ctx.lineTo(rightEyeX, (leftEyeY + rightEyeY) / 2);
-    ctx.stroke();
+            // Draw horizontal line through eyes
+            ctx.beginPath();
+            ctx.moveTo(leftEyeX, (leftEyeY + rightEyeY) / 2);
+            ctx.lineTo(rightEyeX, (leftEyeY + rightEyeY) / 2);
+            ctx.stroke();
 
-    // Draw vertical line through nose and chin
-    ctx.beginPath();
-    ctx.moveTo(noseTipX, noseTipY);
-    ctx.lineTo(noseTipX, chinY);
-    ctx.stroke();
+            // Draw vertical line through nose and chin
+            ctx.beginPath();
+            ctx.moveTo(noseTipX, noseTipY);
+            ctx.lineTo(noseTipX, chinY);
+            ctx.stroke();
 
-    return isPerpendicular;
-}
+            return isPerpendicular;
+        }
 
         function checkFaceSize(landmarks) {
             // Define landmarks for the top of the forehead and bottom of the chin
