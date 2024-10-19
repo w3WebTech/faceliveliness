@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Liveness Check with MediaPipe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
@@ -16,23 +16,32 @@
             height: 100vh;
             background-color: #f0f0f0;
             margin: 0;
-            overflow: hidden; /* Prevent scrollbars */
         }
+
         .video-container {
             position: relative;
-            width: 100vw; /* Full width */
-            height: 100vh; /* Full height */
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.1);
+            width: 800px;
+            height: 1100px;
+
+            background: #FFFFFF;
+            border-radius: 60%;
+           
         }
-        video, canvas {
+        video,
+        canvas {
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%; /* Ensure the video and canvas fill the container */
+            width: 100%;
             height: 100%;
-            object-fit: cover; /* Cover the entire container */
+            object-fit: cover;
+            border-radius:  60%;
         }
+
+        #remove-snapshot {
+            display: none;
+        }
+
         #message {
             margin-top: 20px;
             color: red;
@@ -40,22 +49,27 @@
             display: none;
             animation: blink 1s steps(2, start) infinite;
         }
+
         #snapshot {
             margin-top: 20px;
             border: 2px solid #ccc;
             display: none;
+            border-radius: 60%;
         }
+
         #faceOval {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 70vw; /* Responsive width */
-            height: 90vh; /* Responsive height */
-            border: 2px solid red;
-            border-radius: 50% / 60%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    
+    width: 600px;
+            height: 1000px;
+    border: 2px solid red;
+    border-radius:60%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
         @keyframes blink {
             to {
                 visibility: hidden;
@@ -63,16 +77,28 @@
         }
     </style>
 </head>
+
 <body>
     <h1>Face Liveness Check</h1>
-    <div class="video-container">
-        <video id="video" autoplay></video>
-        <canvas id="canvas"></canvas>
-        <div id="faceOval"></div>
-    </div>
-    <div id="message">Please ensure your face is straight and filling 30% of the frame</div>
-    <img id="snapshot" src="" alt="Snapshot">
 
+    <div class=" mt-5">
+       
+        <div class="row">
+            <div class="">
+                <div id="video-container" class="video-container mb-3">
+                    <video id="video" width="800" height=" 1100" autoplay></video>
+                    <canvas id="canvas" width="800" height="1100"></canvas>
+                    <div id="faceOval"></div>
+                </div>
+                <div id="message" class="text-center mb-3">Please ensure your face is straight and filling 30% of the
+                    frame</div>
+                <img id="snapshot" src="" alt="Snapshot" class="img-fluid mb-3">
+                <!-- <div class="text-center">
+                    <button id="remove-snapshot" class="btn btn-primary block" >Remove Snapshot</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
     <script>
         const videoElement = document.getElementById('video');
         const canvasElement = document.getElementById('canvas');
@@ -128,7 +154,7 @@
                     const areLinesPerpendicular = checkPerpendicularLines(canvasCtx, landmarks);
                     const isFaceSizeCorrect = checkFaceSize(landmarks);
 
-                    if (isFaceSizeCorrect) {
+                    if ( isFaceSizeCorrect) {
                         message.style.display = 'block';
                         if (blinkCount >= 2) { // Blink 3 times (1s per blink)
                             message.style.display = 'none';
@@ -159,42 +185,82 @@
             // Define landmarks for the lines
             const leftEye = landmarks[33];  // Left eye outer corner
             const rightEye = landmarks[263]; // Right eye outer corner
-            const noseTip = landmarks[1];     // Nose tip
-            const chin = landmarks[152];      // Chin point
+            const noseTip = landmarks[1];  // Nose tip
+            const upperLip = landmarks[13];  // Upper lip
+            const lowerLip = landmarks[14];  // Lower lip
+            const chin = landmarks[152]; // Chin point
 
-            // Calculate coordinates
+            // Calculate central points for the eyes and lips
             const leftEyeX = leftEye.x * canvasElement.width;
             const leftEyeY = leftEye.y * canvasElement.height;
             const rightEyeX = rightEye.x * canvasElement.width;
             const rightEyeY = rightEye.y * canvasElement.height;
             const noseTipX = noseTip.x * canvasElement.width;
             const noseTipY = noseTip.y * canvasElement.height;
+            const upperLipX = upperLip.x * canvasElement.width;
+            const upperLipY = upperLip.y * canvasElement.height;
+            const lowerLipX = lowerLip.x * canvasElement.width;
+            const lowerLipY = lowerLip.y * canvasElement.height;
             const chinX = chin.x * canvasElement.width;
             const chinY = chin.y * canvasElement.height;
 
-            // Calculate slopes
-            const slopeEyes = (rightEyeY - leftEyeY) / (rightEyeX - leftEyeX);
-            const slopeNoseChin = (chinY - noseTipY) / (chinX - noseTipX);
+            // Ensure the lines intersect at 90 degrees and within a margin
+            const eyesCenterX = (leftEyeX + rightEyeX) / 2;
+            const eyesCenterY = (leftEyeY + rightEyeY) / 2;
+            const faceWidth = rightEyeX - leftEyeX;
+            const margin = faceWidth * 0.1;  // 10% margin
 
-            // Check if the product of slopes is close to -1 (perpendicular)
-            const isPerpendicular = Math.abs(slopeEyes * slopeNoseChin + 1) < 0.1; // Tolerance of 0.1
+            const withinMargin = Math.abs(noseTipX - eyesCenterX) <= margin;
 
             ctx.strokeStyle = '#00FF00';
             ctx.lineWidth = 2;
 
             // Draw horizontal line through eyes
             ctx.beginPath();
-            ctx.moveTo(leftEyeX, (leftEyeY + rightEyeY) / 2);
-            ctx.lineTo(rightEyeX, (leftEyeY + rightEyeY) / 2);
+            ctx.moveTo(leftEyeX, eyesCenterY);
+            ctx.lineTo(rightEyeX, eyesCenterY);
             ctx.stroke();
 
             // Draw vertical line through nose and chin
             ctx.beginPath();
-            ctx.moveTo(noseTipX, noseTipY);
+            ctx.moveTo(noseTipX, eyesCenterY);
             ctx.lineTo(noseTipX, chinY);
             ctx.stroke();
 
-            return isPerpendicular;
+            // Draw horizontal line through mouth
+            ctx.beginPath();
+            ctx.moveTo(upperLipX - 20, upperLipY);
+            ctx.lineTo(lowerLipX + 20, lowerLipY);
+            ctx.stroke();
+
+            // Draw vertical line through nose tip and mouth
+            ctx.beginPath();
+            ctx.moveTo(noseTipX, upperLipY - 20);
+            ctx.lineTo(noseTipX, lowerLipY + 20);
+            ctx.stroke();
+
+            // Calculate angles between lines
+            const horizontalLineAngle = Math.atan2(rightEyeY - leftEyeY, rightEyeX - leftEyeX) * (180 / Math.PI);
+            const verticalLineAngle = Math.atan2(chinY - eyesCenterY, noseTipX - noseTipX) * (180 / Math.PI);
+            const mouthLineAngle = Math.atan2(lowerLipY - upperLipY, lowerLipX - upperLipX) * (180 / Math.PI);
+
+            const angleDiff1 = Math.abs(horizontalLineAngle - verticalLineAngle);
+            const angleDiff2 = Math.abs(mouthLineAngle - verticalLineAngle);
+
+            console.log('Coordinates:');
+            console.log('Left Eye:', leftEyeX, leftEyeY);
+            console.log('Right Eye:', rightEyeX, rightEyeY);
+            console.log('Nose Tip:', noseTipX, noseTipY);
+            console.log('Upper Lip:', upperLipX, upperLipY);
+            console.log('Lower Lip:', lowerLipX, lowerLipY);
+            console.log('Chin:', chinX, chinY);
+
+            console.log('Angles:');
+            console.log('Horizontal Line Angle:', horizontalLineAngle);
+            console.log('Vertical Line Angle:', verticalLineAngle);
+            console.log('Mouth Line Angle:', mouthLineAngle);
+
+            return (Math.abs(angleDiff1 - 90) <= 3 && Math.abs(angleDiff2 - 90) <= 3 && withinMargin);
         }
 
         function checkFaceSize(landmarks) {
@@ -271,7 +337,9 @@
             const dataUrl = snapshotCanvas.toDataURL('image/png');
             snapshot.src = dataUrl;
             snapshot.style.display = 'block';
+            document.getElementById('video-container').style.display ='none';
         }
     </script>
 </body>
+
 </html>
