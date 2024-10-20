@@ -142,9 +142,12 @@
                 // Check if multiple faces are detected
              
                 if (results.multiFaceLandmarks.length > 1) {
-                    alert("Multiple faces detected! Please ensure only one face is visible.");
-                    return; // Stop processing if more than one face is detected
-                }
+            message.textContent = "Multiple faces detected! Please ensure only one face is visible.";
+            message.style.display = 'block'; // Show the message
+            return; // Stop processing if more than one face is detected
+        } else {
+            message.style.display = 'none'; // Hide the message if a single face is detected
+        }
 
                 for (const landmarks of results.multiFaceLandmarks) {
                     // Draw points
@@ -172,7 +175,7 @@
                         }
                     } else {
                         message.style.display = 'block';
-                        alert("Face is not in the correct size range. Please adjust your position.");
+                        message.textContent = "Face is not in the correct size range. Please adjust your position.";
                         return; 
                         blinkCount = 0;
                     }
